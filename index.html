@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Broke-to-Stacked Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f0e8;
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --green: #1a3a2a;
+    --green-bright: #2ecc71;
+    --red: #c0392b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    padding: 60px 24px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '$';
+    position: absolute;
+    right: -60px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(300px, 40vw, 600px);
+    color: var(--gold);
+    opacity: 0.04;
+    line-height: 1;
+    pointer-events: none;
+    animation: float 8s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(-50%) rotate(-3deg); }
+    50% { transform: translateY(-53%) rotate(2deg); }
+  }
+
+  .hero-inner { max-width: 720px; margin: 0 auto; position: relative; }
+
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .eyebrow span {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--black);
+    padding: 2px 8px;
+    margin-right: 8px;
+    font-weight: 700;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 10vw, 110px);
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.4s forwards;
+  }
+
+  h1 .line-gold { color: var(--gold); display: block; }
+  h1 .line-white { color: var(--white); display: block; }
+  h1 .line-outline {
+    display: block;
+    -webkit-text-stroke: 2px var(--white);
+    color: transparent;
+  }
+
+  .subhead {
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-weight: 300;
+    line-height: 1.6;
+    color: rgba(245,240,232,0.7);
+    max-width: 520px;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.6s forwards;
+  }
+
+  .subhead strong { color: var(--white); font-weight: 700; }
+
+  .cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.8s forwards;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--black);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 18px 36px;
+    text-decoration: none;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold-light);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+
+  .btn-primary:hover::before { transform: translateX(0); }
+  .btn-primary span { position: relative; z-index: 1; }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(201,168,76,0.4);
+  }
+
+  .price-tag {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 0.05em;
+  }
+
+  .price-tag .original {
+    text-decoration: line-through;
+    color: rgba(245,240,232,0.3);
+    font-size: 22px;
+    margin-right: 8px;
+  }
+
+  .price-tag .sale { color: var(--green-bright); }
+
+  /* SOCIAL PROOF BAR */
+  .proof-bar {
+    background: var(--green);
+    border-top: 1px solid rgba(201,168,76,0.2);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    overflow: hidden;
+  }
+
+  .proof-item {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .proof-item::before {
+    content: '✓';
+    color: var(--green-bright);
+    font-size: 14px;
+  }
+
+  /* WHAT YOU GET */
+  .section {
+    padding: 80px 24px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 6vw, 64px);
+    line-height: 1;
+    margin-bottom: 48px;
+  }
+
+  .chapters {
+    display: grid;
+    gap: 2px;
+  }
+
+  .chapter {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 20px;
+    align-items: start;
+    padding: 24px;
+    background: rgba(245,240,232,0.03);
+    border: 1px solid rgba(245,240,232,0.06);
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .chapter:hover {
+    background: rgba(201,168,76,0.06);
+    border-color: rgba(201,168,76,0.2);
+    transform: translateX(8px);
+  }
+
+  .chapter-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--gold);
+    opacity: 0.4;
+    line-height: 1;
+  }
+
+  .chapter-title {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 6px;
+    color: var(--white);
+  }
+
+  .chapter-desc {
+    font-size: 14px;
+    color: rgba(245,240,232,0.5);
+    line-height: 1.5;
+  }
+
+  /* TESTIMONIALS */
+  .testimonials-section {
+    background: #111;
+    padding: 80px 24px;
+    border-top: 1px solid rgba(245,240,232,0.06);
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+  }
+
+  .testimonials-inner { max-width: 800px; margin: 0 auto; }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 48px;
+  }
+
+  .testimonial {
+    padding: 28px;
+    background: var(--black);
+    border: 1px solid rgba(245,240,232,0.08);
+    position: relative;
+  }
+
+  .testimonial::before {
+    content: '"';
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    color: var(--gold);
+    opacity: 0.15;
+    position: absolute;
+    top: 8px;
+    left: 20px;
+    line-height: 1;
+  }
+
+  .testimonial-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(245,240,232,0.7);
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .testimonial-author {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+
+  .stars { color: var(--gold); font-size: 12px; margin-bottom: 12px; }
+
+  /* GUARANTEE */
+  .guarantee {
+    padding: 60px 24px;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .guarantee-box {
+    border: 2px solid var(--gold);
+    padding: 48px 40px;
+    position: relative;
+  }
+
+  .guarantee-box::before {
+    content: 'GUARANTEE';
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--black);
+    padding: 0 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+  }
+
+  .guarantee-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .guarantee-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    margin-bottom: 16px;
+    color: var(--gold);
+  }
+
+  .guarantee-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(245,240,232,0.6);
+  }
+
+  /* FINAL CTA */
+  .final-cta {
+    background: var(--gold);
+    padding: 80px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .final-cta::before {
+    content: 'ACT NOW';
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 15vw, 200px);
+    color: rgba(0,0,0,0.06);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .final-cta-inner { position: relative; }
+
+  .final-cta h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 7vw, 72px);
+    color: var(--black);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .final-cta p {
+    font-size: 16px;
+    color: rgba(10,10,10,0.6);
+    margin-bottom: 36px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .btn-dark {
+    display: inline-block;
+    background: var(--black);
+    color: var(--gold);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 18px 48px;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-bottom: 20px;
+  }
+
+  .btn-dark:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(10,10,10,0.4);
+  }
+
+  .final-note {
+    font-size: 12px;
+    color: rgba(10,10,10,0.5);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 32px 24px;
+    text-align: center;
+    border-top: 1px solid rgba(245,240,232,0.06);
+  }
+
+  footer p {
+    font-size: 12px;
+    color: rgba(245,240,232,0.2);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  /* URGENCY TICKER */
+  .ticker {
+    background: var(--red);
+    padding: 10px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ticker-inner {
+    display: inline-block;
+    animation: ticker 20s linear infinite;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .ticker-inner span { margin: 0 40px; }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(245,240,232,0.06);
+    margin: 0;
+  }
+
+  /* BONUS BOX */
+  .bonus-section { padding: 60px 24px; max-width: 800px; margin: 0 auto; }
+
+  .bonus-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 40px; }
+
+  .bonus-card {
+    padding: 24px;
+    background: rgba(46,204,113,0.05);
+    border: 1px solid rgba(46,204,113,0.2);
+    text-align: center;
+  }
+
+  .bonus-emoji { font-size: 32px; display: block; margin-bottom: 12px; }
+
+  .bonus-title { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
+
+  .bonus-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--green-bright);
+  }
+</style>
+</head>
+<body>
+
+<!-- URGENCY TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>🔥 LIMITED TIME OFFER — LAUNCH PRICE</span>
+    <span>💰 INSTANT DIGITAL DOWNLOAD</span>
+    <span>✅ 30-DAY MONEY BACK GUARANTEE</span>
+    <span>📲 WORKS ON ANY DEVICE</span>
+    <span>🔥 LIMITED TIME OFFER — LAUNCH PRICE</span>
+    <span>💰 INSTANT DIGITAL DOWNLOAD</span>
+    <span>✅ 30-DAY MONEY BACK GUARANTEE</span>
+    <span>📲 WORKS ON ANY DEVICE</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow"><span>NEW</span> The Blueprint Everyone's Talking About</p>
+    <h1>
+      <span class="line-gold">Broke</span>
+      <span class="line-outline">to Stacked</span>
+      <span class="line-white">Blueprint</span>
+    </h1>
+    <p class="subhead">
+      The <strong>step-by-step AI money system</strong> that shows you exactly how to budget smarter, kill debt faster, and build <strong>multiple income streams</strong> — even if you're starting from zero.
+    </p>
+    <div class="cta-group">
+      <a href="https://prossyjo.gumroad.com/l/ldnkfc" class="btn-primary"><span>Get Instant Access →</span></a>
+      <div class="price-tag">
+        <span class="original">$27</span>
+        <span class="sale">$9</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF BAR -->
+<div class="proof-bar">
+  <div class="proof-item">Instant Download</div>
+  <div class="proof-item">15 Power-Packed Pages</div>
+  <div class="proof-item">AI Tools Included</div>
+  <div class="proof-item">Beginner Friendly</div>
+  <div class="proof-item">No Experience Needed</div>
+</div>
+
+<!-- WHAT'S INSIDE -->
+<section class="section">
+  <p class="section-label">// Inside the guide</p>
+  <h2 class="section-title">What You're Getting</h2>
+  <div class="chapters">
+    <div class="chapter">
+      <div class="chapter-num">01</div>
+      <div>
+        <div class="chapter-title">The Zero-Based Budget Method</div>
+        <div class="chapter-desc">Give every dollar a job before the month starts. The exact system used by people who went from overdraft to savings in 90 days.</div>
+      </div>
+    </div>
+    <div class="chapter">
+      <div class="chapter-num">02</div>
+      <div>
+        <div class="chapter-title">The Debt Avalanche Accelerator</div>
+        <div class="chapter-desc">Mathematically proven strategy to wipe out debt in the shortest time possible — without earning more money.</div>
+      </div>
+    </div>
+    <div class="chapter">
+      <div class="chapter-num">03</div>
+      <div>
+        <div class="chapter-title">5 AI-Powered Side Hustles</div>
+        <div class="chapter-desc">Real income streams you can start this week using free AI tools — no skills, no audience, no capital required.</div>
+      </div>
+    </div>
+    <div class="chapter">
+      <div class="chapter-num">04</div>
+      <div>
+        <div class="chapter-title">The $1,000 Emergency Fund Fast-Track</div>
+        <div class="chapter-desc">A 30-day savings sprint framework that finds hidden money in your current budget without cutting everything you love.</div>
+      </div>
+    </div>
+    <div class="chapter">
+      <div class="chapter-num">05</div>
+      <div>
+        <div class="chapter-title">Automating Your Wealth Machine</div>
+        <div class="chapter-desc">Set up automatic savings, investments, and income flows so your money works while you sleep.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- BONUSES -->
+<section class="bonus-section">
+  <p class="section-label">// Free bonuses</p>
+  <h2 class="section-title">Included Free Today</h2>
+  <div class="bonus-grid">
+    <div class="bonus-card">
+      <span class="bonus-emoji">📊</span>
+      <div class="bonus-title">Monthly Budget Tracker Template</div>
+      <div class="bonus-value">Value: $7 — FREE</div>
+    </div>
+    <div class="bonus-card">
+      <span class="bonus-emoji">🤖</span>
+      <div class="bonus-title">50 AI Prompts for Money Management</div>
+      <div class="bonus-value">Value: $12 — FREE</div>
+    </div>
+    <div class="bonus-card">
+      <span class="bonus-emoji">📱</span>
+      <div class="bonus-title">Top 10 Free Apps to Grow Wealth</div>
+      <div class="bonus-value">Value: $5 — FREE</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section">
+  <div class="testimonials-inner">
+    <p class="section-label">// Real results</p>
+    <h2 class="section-title">What Readers Say</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">I saved $800 in my first month using the zero-based budget chapter alone. Worth 10x the price.</p>
+        <div class="testimonial-author">— Thabo M., Gaborone</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">Started the AI side hustle in chapter 3 and made my first $200 within 2 weeks. I was shocked it was this simple.</p>
+        <div class="testimonial-author">— Kefilwe D., Johannesburg</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">Finally a guide that doesn't tell you to "cut coffee." Practical, actionable, and it actually works.</p>
+        <div class="testimonial-author">— Ryan O., Nairobi</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GUARANTEE -->
+<section class="guarantee">
+  <div class="guarantee-box">
+    <span class="guarantee-icon">🛡️</span>
+    <h3 class="guarantee-title">30-Day Money Back Guarantee</h3>
+    <p class="guarantee-text">
+      Try the entire guide for 30 days. If you don't find at least one strategy that saves or makes you more than $9, email us and we'll refund every cent. No questions asked.
+    </p>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="final-cta-inner">
+    <h2>Stop Waiting. Start Stacking.</h2>
+    <p>Join hundreds of readers already using this system. Download in the next 60 seconds.</p>
+    <br>
+    <a href="https://prossyjo.gumroad.com/l/ldnkfc" class="btn-dark">Get The Blueprint — $9 →</a>
+    <br>
+    <p class="final-note">⚡ Instant download · PDF format · Works on phone, tablet & desktop</p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Broke to Stacked Blueprint · Digital Product · All Sales Final After 30 Days · <a href="/cdn-cgi/l/email-protection#4a33253f380a2f272b232664292527" style="color:inherit">Contac
